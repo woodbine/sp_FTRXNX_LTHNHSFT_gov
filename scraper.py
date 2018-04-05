@@ -84,8 +84,13 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "FTRXNX_LTHNHSFT_gov"
-url = "http://www.lancsteachinghospitals.nhs.uk/publication-of-spend"
+urls = ["https://www.lancsteachinghospitals.nhs.uk/publication-of-spend",
+       "https://www.lancsteachinghospitals.nhs.uk/publication-of-spend-2016",
+       "https://www.lancsteachinghospitals.nhs.uk/publication-of-spend-2015",
+        "https://www.lancsteachinghospitals.nhs.uk/publication-of-spend-2014"
+        ]
 errors = 0
+url = "http://www.example.com"
 data = []
 
 #### READ HTML 1.0
@@ -96,26 +101,19 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-blocks = soup.find_all('a')
-for block in blocks:
-    if '.csv' in block['href'] or '.xls' in block['href'] or '.xlsx' in block['href'] or '.pdf' in block['href']:
-        link = 'http://www.lancsteachinghospitals.nhs.uk'+block['href']
-        title = block.text.strip().split()
-        csvMth = title[0][:3]
-        csvYr = title[1][:4]
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, link])
-html = urllib2.urlopen('http://www.lancsteachinghospitals.nhs.uk/publication-of-spend-2014')
-soup = BeautifulSoup(html, 'lxml')
-blocks = soup.find_all('a')
-for block in blocks:
-    if '.csv' in block['href'] or '.xls' in block['href'] or '.xlsx' in block['href'] or '.pdf' in block['href']:
-        link = 'http://www.lancsteachinghospitals.nhs.uk'+block['href']
-        title = block.text.strip().split()
-        csvMth = title[0][:3]
-        csvYr = title[1][:4]
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, link])
+for url in urls:
+    html = urllib2.urlopen(url)
+    soup = BeautifulSoup(html, "lxml")
+    blocks = soup.find_all('a')
+    for block in blocks:
+        if '.csv' in block['href'] or '.xls' in block['href'] or '.xlsx' in block['href'] or '.pdf' in block['href']:
+            link = 'http://www.lancsteachinghospitals.nhs.uk'+block['href']
+            title = block.text.strip().replace('Publication of spend ', '').replace('Publication of Spend ', '').split()
+            csvMth = title[0][:3]
+            csvYr = title[1][:4]
+            csvMth = convert_mth_strings(csvMth.upper())
+            data.append([csvYr, csvMth, link])
+
 
 #### STORE DATA 1.0
 
